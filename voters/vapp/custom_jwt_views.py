@@ -1,0 +1,45 @@
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework.response import Response
+
+class UserokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['first_name'] = user.first_name
+        token['last_name'] = user.last_name
+        token['username'] = user.username
+        return token
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = UserokenObtainPairSerializer
+
+    def post(self, request, *args, **kwargs):
+        try:
+            response = super().post(request, *args, **kwargs)
+            tokens = response.data
+
+            res = Response()
+            res.data = {"success": True}
+            res.set_cookie("access_token", tokens["access"], httponly=True, secure=True, samesite="None", path="/")
+            res.set_cookie("refresh_token", tokens["refresh"], httponly=True, secure=True, samesite="None", path="/")
+            return res
+        except:
+            print(super().post(request=request, *args, **kwargs))
+            return Response({"success": False})
+
+class CustomRefreshTokenView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        try:
+            refresh_token = request.COOKIES.get('refresh_token')
+            request.data['refresh'] = refresh_token
+            response = super().post(request, *args, **kwargs)
+            res = Response()
+            res.data = {"Refreshed": True}
+            res.set_cookie("access_token", response.data["access"], httponly=True, secure=True, samesite="None", path="/")
+            return res
+        except:
+            return Response({"Refreshed": False})
+
+
+
