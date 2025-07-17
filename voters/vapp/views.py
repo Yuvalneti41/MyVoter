@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
-
+from .models import Goverment, Politikai
 from .serializers import UserRegisterationSerializer, PolitikaiSerializer, GovermentSerializer
 from rest_framework.decorators import api_view, permission_classes, APIView
 from rest_framework.response import Response
@@ -70,3 +70,33 @@ class PolitikaiBulkUploadView(APIView):
             return Response({"message": f"{len(serializer.data)} Politikai created successfully"})
         else:
             return Response(serializer.errors)
+        
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def show_goverment(request):
+    user = request.user
+    goverment = Goverment.objects.get(user=user.id)
+    serializer = GovermentSerializer(goverment, many=True)
+    return Response(serializer.data)
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def show_politikai(request):
+    politikai_id = request.GET.get('politikai_id') 
+    politikai = Politikai.objects.get(id=politikai_id)
+    serializer = PolitikaiSerializer(politikai)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def show_profile(request):
+    politikai_id = request.GET.get('politikai_id')
+    politikai = Politikai.objects.get(id=politikai_id)
+    data = {
+        "first_name": politikai.first_name,
+        "last_name": politikai.last_name,
+    }
+    if politikai.profile_picture is not None:
+        data['profile_picture'] = politikai.profile_picture.url
+    return Response(data)
