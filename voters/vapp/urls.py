@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView
 )
 from .custom_jwt_views import CustomTokenObtainPairView, CustomRefreshTokenView
-from .views import logout, register, add_politikai, add_goverment, show_goverment, show_politikai, show_profile, PolitikaiBulkUploadView
+from .views import logout, register, add_politikai, add_goverment, show_goverment, show_politikai, show_profile, show_user_data, PolitikaiBulkUploadView
 
 urlpatterns = [
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -18,4 +18,5 @@ urlpatterns = [
     path('api/goverment/', show_goverment, name='show_goverment'),
     path('api/politikai/', show_politikai, name='show_politikai'),
     path('api/politikai/profile/', show_profile, name='show_profile'),
+    path('api/user/data/', show_user_data, name='show_user_data'),
 ]
