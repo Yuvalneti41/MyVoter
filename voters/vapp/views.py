@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 
-from .serializers import UserRegisterationSerializer
-from rest_framework.decorators import api_view, permission_classes
+from .serializers import UserRegisterationSerializer, PolitikaiSerializer, GovermentSerializer
+from rest_framework.decorators import api_view, permission_classes, APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
@@ -29,3 +29,44 @@ def register(request):
         return Response(serializer.data)
     else:
         return Response(serializer.errors)
+    
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def add_politikai(request):
+    user = request.user
+    if user.is_superuser:
+        data = request.data
+        serializer = PolitikaiSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"validation success": True})
+        return Response({"validation success": False})
+    return Response({"Error": "User does not have premission."})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def add_goverment(request):
+    user = request.user
+    data = request.data
+    data["user"] = user.id
+    serializer = GovermentSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"goverment": serializer.data})
+    return Response({"validation success": False, "error": serializer.errors})
+
+
+class PolitikaiBulkUploadView(APIView):
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        if not isinstance(data, list):
+            return Response({"error": "Expected a list of items"})
+        
+        serializer = PolitikaiSerializer(data=data, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": f"{len(serializer.data)} Politikai created successfully"})
+        else:
+            return Response(serializer.errors)
