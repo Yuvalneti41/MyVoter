@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from .models import Goverment, Politikai
-from .serializers import UserRegisterationSerializer, PolitikaiSerializer, GovermentSerializer, UserSerializer
+from .serializers import UserRegisterationSerializer, PolitikaiSerializer, GovermentSerializer
 from rest_framework.decorators import api_view, permission_classes, APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -100,10 +100,3 @@ def show_profile(request):
     if politikai.profile_picture is not None:
         data['profile_picture'] = politikai.profile_picture.url
     return Response(data)
-
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def show_user_data(request):
-    user = request.user
-    serializer = UserSerializer(user)
-    return Response(serializer.data)
