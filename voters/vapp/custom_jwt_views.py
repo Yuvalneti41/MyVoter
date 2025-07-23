@@ -22,8 +22,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
             res = Response()
             res.data = {"success": True}
-            res.set_cookie("access_token", tokens["access"], httponly=True, secure=True, samesite="None", path="/")
-            res.set_cookie("refresh_token", tokens["refresh"], httponly=True, secure=True, samesite="None", path="/")
+            res.set_cookie("access_token", tokens["access"], httponly=True, secure=False, samesite="Lax", path="/")
+            res.set_cookie("refresh_token", tokens["refresh"], httponly=True, secure=False, samesite="Lax", path="/")
             return res
         except:
             print(super().post(request=request, *args, **kwargs))
@@ -37,7 +37,7 @@ class CustomRefreshTokenView(TokenRefreshView):
             response = super().post(request, *args, **kwargs)
             res = Response()
             res.data = {"Refreshed": True}
-            res.set_cookie("access_token", response.data["access"], httponly=True, secure=True, samesite="None", path="/")
+            res.set_cookie("access_token", response.data["access"], httponly=True, secure=False, samesite="Lax", path="/")
             return res
         except:
             return Response({"Refreshed": False})
