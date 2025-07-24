@@ -5,7 +5,7 @@ from .serializers import UserRegisterationSerializer, PolitikaiSerializer, Gover
 from rest_framework.decorators import api_view, permission_classes, APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-
+from rest_framework import status
 
 
 @api_view(["POST"])
@@ -92,11 +92,19 @@ def show_politikai(request):
 @permission_classes([IsAuthenticated])
 def show_profile(request):
     politikai_id = request.GET.get('politikai_id')
-    politikai = Politikai.objects.get(id=politikai_id)
+    if not politikai_id:
+        return Response({"error": "Missing politikai_id"}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        politikai = Politikai.objects.get(id=politikai_id)
+    except Politikai.DoesNotExist:
+        return Response({"error": "Politikai not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     data = {
         "first_name": politikai.first_name,
         "last_name": politikai.last_name,
     }
-    if politikai.profile_picture is not None:
+    if politikai.profile_picture and hasattr(politikai.profile_picture, 'url'):
         data['profile_picture'] = politikai.profile_picture.url
     return Response(data)

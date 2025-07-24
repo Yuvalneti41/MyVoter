@@ -1,9 +1,11 @@
 import React from "react";
+import DisplayGovernment from "../Components/DisplayGovernment";
+
 
 const ProfilePage = () => {
     return (
         <>
-            <h1>yo2</h1>
+            <DisplayGovernment />
         </>
     )
 }

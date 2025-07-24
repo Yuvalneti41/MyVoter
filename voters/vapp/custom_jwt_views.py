@@ -33,6 +33,10 @@ class CustomRefreshTokenView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
         try:
             refresh_token = request.COOKIES.get('refresh_token')
+
+            if not refresh_token:
+                return Response({"Error": "No refresh token provided"})
+        
             request.data['refresh'] = refresh_token
             response = super().post(request, *args, **kwargs)
             res = Response()
