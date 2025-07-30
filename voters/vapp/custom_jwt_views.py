@@ -38,10 +38,12 @@ class CustomRefreshTokenView(TokenRefreshView):
                 return Response({"Error": "No refresh token provided"})
         
             request.data['refresh'] = refresh_token
+            
             response = super().post(request, *args, **kwargs)
             res = Response()
             res.data = {"Refreshed": True}
             res.set_cookie("access_token", response.data["access"], httponly=True, secure=False, samesite="Lax", path="/")
+            res.set_cookie("refresh_token", response.data["refresh"], httponly=True, secure=False, samesite="Lax", path="/")
             return res
         except:
             return Response({"Refreshed": False})

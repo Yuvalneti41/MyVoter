@@ -108,3 +108,22 @@ def show_profile(request):
     if politikai.profile_picture and hasattr(politikai.profile_picture, 'url'):
         data['profile_picture'] = politikai.profile_picture.url
     return Response(data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def show_profiles(request):
+    custom_party = request.data
+    if not isinstance(custom_party, dict) or not custom_party:
+        return Response({"error": "Invalid or missing custom party"})
+    profiles_ids = list(custom_party.values())
+    print(profiles_ids)
+    profiles = Politikai.objects.filter(id__in=profiles_ids)
+    profiles_data = {}
+    for profile in profiles:
+        profiles_data[profile.id] = {
+            "first_name": profile.first_name,
+            "last_name": profile.last_name,
+            "profile_picture": profile.profile_picture.url if profile.profile_picture and hasattr(profile.profile_picture, "url") else None
+        }
+    return Response({"ok": profiles_data})
